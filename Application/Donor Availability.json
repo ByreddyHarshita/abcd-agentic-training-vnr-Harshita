@@ -1,0 +1,1400 @@
+{
+  "name": "Donor Availability",
+  "nodes": [
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "id-1",
+              "name": "spreadsheetId",
+              "value": "1HZ6xwUNrLxng0lXtRmxei1XlRHJ_jRPJGJ5IXL0h4Cg",
+              "type": "string"
+            },
+            {
+              "id": "id-2",
+              "name": "donorsSheet",
+              "value": "Donors",
+              "type": "string"
+            },
+            {
+              "id": "id-3",
+              "name": "requestsSheet",
+              "value": "Requests",
+              "type": "string"
+            },
+            {
+              "id": "id-4",
+              "name": "waitTimeout",
+              "value": 2,
+              "type": "number"
+            },
+            {
+              "id": "id-5",
+              "name": "requestId",
+              "value": "={{ Date.now()}}",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "id": "62ef1acb-266d-4eb3-bc0f-56675c2a36f3",
+      "name": "Workflow Configuration",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        144,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $('Workflow Configuration').first().json.spreadsheetId }}"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "={{ $('Workflow Configuration').first().json.requestsSheet }}",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Request ID": "={{ $('Workflow Configuration').first().json.requestId }}",
+            "Donor Name": "={{ $json.Name }}",
+            "Donor Email": "={{ $json.Email }}",
+            "Blood Type": "={{ $('Workflow Configuration').first().json.body.bloodgroup }}",
+            "Requester Name": "={{ $('Workflow Configuration').first().json.body.RequesterName }}",
+            "Requester Email": "={{ $('Workflow Configuration').first().json.body.RequesterEmail }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Request ID",
+              "displayName": "Request ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Donor Name",
+              "displayName": "Donor Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Donor Email",
+              "displayName": "Donor Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Blood Type",
+              "displayName": "Blood Type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Requester Name",
+              "displayName": "Requester Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Requester Email",
+              "displayName": "Requester Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "8e229dbf-5246-438f-ba21-101ae75164ab",
+      "name": "Store Active Request",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        176,
+        256
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "0meeajMcZtKKxfq5",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "id-1",
+              "leftValue": "={{ $json.query.response }}",
+              "rightValue": "yes",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            },
+            {
+              "id": "35a46ae9-805d-4141-8366-8dcb5ef89dc8",
+              "leftValue": "={{ $json.query.response }}",
+              "rightValue": "yes",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "id": "02add0c2-6504-4238-95e5-3390281613ee",
+      "name": "Check If Accepted",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        816,
+        256
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "delete",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $('Workflow Configuration').first().json.spreadsheetId }}"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "={{ $('Workflow Configuration').first().json.requestsSheet }}",
+          "mode": "name"
+        },
+        "startIndex": "={{ $json.row_number }}",
+        "numberToDelete": "={{ 1 }}"
+      },
+      "id": "1810d698-1b17-4549-ad9c-b7bc968f2290",
+      "name": "Delete Active Request",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1856,
+        176
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "0meeajMcZtKKxfq5",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "id": "88099bd2-c078-489e-885b-437c595b24d3",
+      "name": "End Workflow",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        2032,
+        176
+      ]
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "={{ $('Workflow Configuration').first().json.spreadsheetId }}",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "={{ $('Workflow Configuration').first().json.requestsSheet }}",
+          "mode": "name"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1664,
+        176
+      ],
+      "id": "d17026f4-ad31-424a-aa3d-1d658489b1b5",
+      "name": "Get Active Request",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "0meeajMcZtKKxfq5",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Workflow Configuration').first().json.body.RequesterEmail }}",
+        "subject": "No Donors Available",
+        "message": "=Dear {{ $('Request Webhook').first().json.body.RequesterName }},  \n\nWe're sorry, but no donors are currently available for {{ $('Request Webhook').first().json.body.bloodgroup }} in {{ $('Request Webhook').first().json.body.city }}.\n\nBest regards, \nBlood Donation Management Team",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1440,
+        16
+      ],
+      "id": "cfad297f-7c72-4515-9d70-f278248b85e4",
+      "name": "Send a message",
+      "webhookId": "d33a8c6a-712a-4377-adc6-e2563bbd8b25",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "lSVlCuFCcABCTT6M",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "=1HZ6xwUNrLxng0lXtRmxei1XlRHJ_jRPJGJ5IXL0h4Cg",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Donors",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1HZ6xwUNrLxng0lXtRmxei1XlRHJ_jRPJGJ5IXL0h4Cg/edit#gid=0"
+        },
+        "options": {}
+      },
+      "id": "b55cd186-1f1a-4442-9aad-ef06f6457660",
+      "name": "Get Donor Database",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        400,
+        0
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "0meeajMcZtKKxfq5",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const donors = $input.all().map((item) => item.json);\nconst requester = $(\"Request Webhook\").all()[0].json.body;\n\nconst eligibleDonors = donors.filter((donor) => {\n  return (\n    donor[\"Blood Group\"] === requester.bloodgroup &&\n    donor.City === requester.city &&\n    donor.Available === \"Yes\"\n  );\n});\n\nreturn eligibleDonors.map((donor) => ({ json: donor }));\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        656,
+        0
+      ],
+      "id": "24de78f6-7887-4aa5-aac3-9053ecc6bafb",
+      "name": "Filter Donors"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "blood-request",
+        "options": {}
+      },
+      "id": "4eb62d78-bafd-421f-9741-a9db2aa300dc",
+      "name": "Request Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -96,
+        0
+      ],
+      "webhookId": "78a07358-e3b9-4fbd-86ff-a1a24782146d"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "id-1",
+              "leftValue": "={{ $input.all().length }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "18c4e8c1-664b-405a-bbc9-147e1b8f61ab",
+      "name": "Check If Donors Found",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        880,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "id-1",
+              "name": "status",
+              "value": "no_donors_found",
+              "type": "string"
+            },
+            {
+              "id": "id-2",
+              "name": "message",
+              "value": "No matching donors available for this blood group and location",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "c62c4ac6-f2f5-41a0-96f0-c9ffd1c8b41d",
+      "name": "No Donors Response",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1184,
+        16
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const donors = $input.all().map((item) => item.json);\nreturn { json: donors[0] };\n"
+      },
+      "id": "dba79dd2-c00a-4f50-9d81-23d406749808",
+      "name": "Get First Donor",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -64,
+        256
+      ]
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json['Donor Email'] }}",
+        "subject": "Blood Donation Request",
+        "message": "=<p>Dear {{ $json['Donor Name'] }},</p>\n\n<p>We have an urgent blood donation request that matches your blood group <b>{{ $('Request Webhook').first().json.body.bloodgroup }}</b>. Your help is needed.<b></p>\n\n<p><b>Request Details:</b><br>\n- Blood Group: {{ $('Request Webhook').first().json.body.bloodgroup }}<br>\n- Requester Name: {{ $('Request Webhook').first().json.body.RequesterName }}<br>\n- Location: {{ $('Request Webhook').first().json.body.city }}<br>\n- Requester Email: {{ $('Request Webhook').first().json.body.RequesterEmail }}\n</p>\n\n<p>Your Donation could save a life.If you are available to donate, please respond as soon as possible.</p>\n\n<p>\n<a href=\"{{$execution.resumeUrl}}?response=yes\">Yes, I can donate</a><br>\n  <a href=\"{{$execution.resumeUrl}}?response=no\">Sorry, I'm not available</a>\n</p>\n\n<p>Thank you!<br>\nBest regards,<br>\n<b>Blood Donation Management Team</b></p>\n",
+        "options": {}
+      },
+      "id": "f6d52a39-c054-4e04-b1b8-22efb656109a",
+      "name": "Send Email to Donor",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        384,
+        256
+      ],
+      "webhookId": "504640c2-93f8-45cb-bca6-e723e94a7d78",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "lSVlCuFCcABCTT6M",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resume": "webhook",
+        "limitWaitTime": true,
+        "resumeAmount": 10,
+        "resumeUnit": "minutes",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        608,
+        256
+      ],
+      "id": "a286fb24-99e9-46ff-91cb-cf65ebaf3fce",
+      "name": "Wait",
+      "webhookId": "3ee75b90-322b-42aa-9e25-c973eeaa055c"
+    },
+    {
+      "parameters": {
+        "jsCode": "let updatedRequest = null;\nlet activeRequest = null;\ntry {\n  updatedRequest = $('Update Active Request for Next Donor').first()?.json;\n} catch (e) {\n  // Node hasn't been executed yet, that's fine\n  updatedRequest = null;\n}\n\n// Get the initial active request (always exists)\ntry {\n  activeRequest = $('Store Active Request').first()?.json;\n} catch (e) {\n  return [];\n}\n\nlet currentDonorEmail, currentDonorName;\n\n// Find all filtered donors once\nconst donors = $('Filter Donors').all().map(i => i.json);\n\nif (updatedRequest && updatedRequest[\"Donor Email\"]) {\n  currentDonorEmail = updatedRequest[\"Donor Email\"];\n  const donor = donors.find(t => t.Email === currentDonorEmail);\n  currentDonorName = donor?.Name || 'Donor';\n  \n} else if (activeRequest && activeRequest[\"Donor Email\"]) {\n  currentDonorEmail = activeRequest[\"Donor Email\"];\n  const donor = donors.find(t => t.Email === currentDonorEmail);\n  currentDonorName = donor?.Name || 'Donor';\n  \n} else {\n  return [];\n}\n\nreturn [{\n  json: {\n    currentDonorEmail: currentDonorEmail,\n    currentDonorName: currentDonorName\n  }\n}];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1008,
+        176
+      ],
+      "id": "60f6659a-34d7-4420-8b08-86e0cf1a03e5",
+      "name": "Get Current Donor Email"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Identify which tutor just rejected\nlet rejectedDonorEmail;\n\n// Try to get from Store Active Request (first tutor)\nconst activeRequest = $('Store Active Request').first()?.json;\n\n// Try to get from Update Active Request (subsequent tutors)\nlet updatedRequest = null;\ntry {\n  updatedRequest = $('Update Active Request for Next Donor').first()?.json;\n} catch (e) {\n  updatedRequest = null;\n}\n\nif (updatedRequest && updatedRequest[\"Donor Email\"]) {\n  // Subsequent tutor rejected\n  rejectedDonorEmail = updatedRequest[\"Donor Email\"];\n} else if (activeRequest && activeRequest[\"Donor Email\"]) {\n  // First tutor rejected\n  rejectedDonorEmail = activeRequest[\"Donor Email\"];\n} else {\n  return [];\n}\n\nreturn [{\n  json: {\n    rejectedDonorEmail: rejectedDonorEmail\n  }\n}];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1024,
+        336
+      ],
+      "id": "b1b0a841-b20f-47f6-accd-8e1f1df11cd1",
+      "name": "Get Rejected Donor Email"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "={{ $('Workflow Configuration').first().json.spreadsheetId }}",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "={{ $('Workflow Configuration').first().json.donorsSheet }}",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Available": "No",
+            "Email": "={{ $('Get Rejected Donor Email').first().json.rejectedDonorEmail }}"
+          },
+          "matchingColumns": [
+            "Email"
+          ],
+          "schema": [
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Subject",
+              "displayName": "Subject",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "City",
+              "displayName": "City",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Available",
+              "displayName": "Available",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1232,
+        336
+      ],
+      "id": "a2cce6b3-9cbe-48d2-a1ee-407c34fdba4b",
+      "name": "Mark Rejected Donor Unavailable",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "0meeajMcZtKKxfq5",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get all matched tutors from Filter step\nconst donors = $('Filter Donors').all().map(i => i.json);\n\n// Get the CURRENT tutor's email from the UPDATED Active Request sheet\nlet updatedRequest = null;\ntry {\n  updatedRequest = $('Update Active Request for Next Donor').first()?.json;\n} catch (e) {\n  updatedRequest = null;\n}\n\nif (!updatedRequest) {\n  // Fallback: if update hasn't happened yet, use Store Active Request (first tutor case)\n  const storedRequest = $('Store Active Request').first()?.json;\n  if (!storedRequest) return [];\n  \n  const currentDonorEmail = storedRequest[\"Donor Email\"];\n  const currentIndex = donors.findIndex(t => t.Email === currentDonorEmail);\n  \n  if (currentIndex === -1 || currentIndex >= donors.length - 1) {\n    return [];\n  }\n  \n  return [{json: donors[currentIndex + 1]}];\n}\n\n// Use the UPDATED tutor email (for 2nd, 3rd, etc. rejections)\nconst currentDonorEmail = updatedRequest[\"Donor Email\"];\nconst currentIndex = donors.findIndex(t => t.Email === currentDonorEmail);\n\n// Check if there's a next donor\nif (currentIndex === -1 || currentIndex >= donors.length - 1) {\n  return [];\n}\n\n// Return the next tutor\nconst nextDonor = donors[currentIndex + 1];\nreturn [{json: nextDonor}];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1456,
+        336
+      ],
+      "id": "bac9b365-3c94-4cb8-a1de-29b342fc3ec8",
+      "name": "Get Next Donor",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $('Workflow Configuration').first().json.spreadsheetId }}"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "={{ $('Workflow Configuration').first().json.requestsSheet }}",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Request ID": "={{ $('Workflow Configuration').first().json.requestId }}",
+            "row_number": 0,
+            "Donor Name": "={{ $json.Name }}",
+            "Donor Email": "={{ $json.Email }}"
+          },
+          "matchingColumns": [
+            "Request ID"
+          ],
+          "schema": [
+            {
+              "id": "Request ID",
+              "displayName": "Request ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Donor Name",
+              "displayName": "Donor Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Donor Email",
+              "displayName": "Donor Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Blood Type",
+              "displayName": "Blood Type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Requester Name",
+              "displayName": "Requester Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Requester Phone",
+              "displayName": "Requester Phone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Requester Email",
+              "displayName": "Requester Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "03577d5b-c5f0-4813-8bbc-24ea60efd154",
+      "name": "Update Active Request for Next Donor",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1712,
+        336
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "0meeajMcZtKKxfq5",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "id-1",
+              "leftValue": "={{ $json['Donor Email'] }}",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              },
+              "rightValue": 0
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "f698bd26-946d-442b-9cf0-b05bb40444cf",
+      "name": "Check More Donors Available",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1936,
+        336
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $('Workflow Configuration').first().json.spreadsheetId }}"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "={{ $('Workflow Configuration').first().json.donorsSheet }}",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Email": "={{ $json.currentDonorEmail }}",
+            "Available": "No",
+            "Last Updated": "={{ $now}}"
+          },
+          "matchingColumns": [
+            "Email"
+          ],
+          "schema": [
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Blood Group",
+              "displayName": "Blood Group",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "City",
+              "displayName": "City",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Available",
+              "displayName": "Available",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Last Updated",
+              "displayName": "Last Updated",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "0924ce41-b5a3-4776-add1-67457272ff8a",
+      "name": "Update Donor Availability",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1216,
+        176
+      ],
+      "alwaysOutputData": false,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "0meeajMcZtKKxfq5",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Store Active Request').item.json['Requester Email'] }}",
+        "subject": "Donor Match Found!",
+        "emailType": "text",
+        "message": "=Dear {{ $('Request Webhook').first().json.body.RequesterName }},\n\nGreat news! We found a donor for you!\n\nDonor Details:\n- Name: {{ $('Get Current Donor Email').first().json.currentDonorName }}\n\n- Blood Group: {{ $('Request Webhook').first().json.body.bloodgroup }}\n- Location: {{ $('Request Webhook').first().json.body.city }}\n\nYour donor will contact you shortly for more details.\n\nBest regards,\nBlood Donation Management Team",
+        "options": {}
+      },
+      "id": "ce1bcfba-892e-46ca-93c1-7eaafb1dadf6",
+      "name": "Notify Requester of Match",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1440,
+        176
+      ],
+      "webhookId": "135d680f-9bce-45b6-a414-47c6cb079492",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "lSVlCuFCcABCTT6M",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "triggerTimes": {
+          "item": [
+            {
+              "hour": 0
+            }
+          ]
+        }
+      },
+      "id": "9c23dc5a-c771-4b0c-a2f2-c9a12dc47be8",
+      "name": "Cron - Daily Reset",
+      "type": "n8n-nodes-base.cron",
+      "typeVersion": 1,
+      "position": [
+        416,
+        544
+      ]
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1HZ6xwUNrLxng0lXtRmxei1XlRHJ_jRPJGJ5IXL0h4Cg",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Donors",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1HZ6xwUNrLxng0lXtRmxei1XlRHJ_jRPJGJ5IXL0h4Cg/edit#gid=0"
+        },
+        "options": {}
+      },
+      "id": "a6dc841a-51d1-4a85-8470-fa7c7dafaf2c",
+      "name": "Read Donors for Reset",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        608,
+        544
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "0meeajMcZtKKxfq5",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "\nconst donors = $input.all().map(i => i.json);\nconst now = new Date();\nconst resetList = donors.filter(d => {\n  const last = new Date(d.LastUpdated);\n  const diffDays = (now - last) / (1000 * 3600 * 24);\n  return diffDays > 30 && d.Available === 'No';\n});\nreturn resetList.map(d => ({json: {Email: d.Email, Available: 'Yes', LastUpdated: new Date().toISOString()}}));\n                "
+      },
+      "id": "8375bec1-ce6a-43b3-b898-2f7f76f250ae",
+      "name": "Filter Donors to Reset",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        816,
+        544
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1HZ6xwUNrLxng0lXtRmxei1XlRHJ_jRPJGJ5IXL0h4Cg",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Donors"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Email": "={{$json.Email}}",
+            "Available": "={{$json.Available}}",
+            "row_number": 0
+          },
+          "matchingColumns": [
+            "Email"
+          ],
+          "schema": [
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Blood Group",
+              "displayName": "Blood Group",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "City",
+              "displayName": "City",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Available",
+              "displayName": "Available",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Last Updated",
+              "displayName": "Last Updated",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Active RequestID",
+              "displayName": "Active RequestID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "1b7181ab-6447-4769-bf15-2fdc1375c8d6",
+      "name": "Reset Availability",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1008,
+        544
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "0meeajMcZtKKxfq5",
+          "name": "Google Sheets account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Workflow Configuration": {
+      "main": [
+        [
+          {
+            "node": "Get Donor Database",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Store Active Request": {
+      "main": [
+        [
+          {
+            "node": "Send Email to Donor",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check If Accepted": {
+      "main": [
+        [
+          {
+            "node": "Get Current Donor Email",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Get Rejected Donor Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete Active Request": {
+      "main": [
+        [
+          {
+            "node": "End Workflow",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Active Request": {
+      "main": [
+        [
+          {
+            "node": "Delete Active Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message": {
+      "main": [
+        [
+          {
+            "node": "Get Active Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Donor Database": {
+      "main": [
+        [
+          {
+            "node": "Filter Donors",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter Donors": {
+      "main": [
+        [
+          {
+            "node": "Check If Donors Found",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Request Webhook": {
+      "main": [
+        [
+          {
+            "node": "Workflow Configuration",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check If Donors Found": {
+      "main": [
+        [
+          {
+            "node": "Get First Donor",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No Donors Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "No Donors Response": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get First Donor": {
+      "main": [
+        [
+          {
+            "node": "Store Active Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Email to Donor": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "Check If Accepted",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Current Donor Email": {
+      "main": [
+        [
+          {
+            "node": "Update Donor Availability",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Rejected Donor Email": {
+      "main": [
+        [
+          {
+            "node": "Mark Rejected Donor Unavailable",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mark Rejected Donor Unavailable": {
+      "main": [
+        [
+          {
+            "node": "Get Next Donor",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Next Donor": {
+      "main": [
+        [
+          {
+            "node": "Update Active Request for Next Donor",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Active Request for Next Donor": {
+      "main": [
+        [
+          {
+            "node": "Check More Donors Available",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check More Donors Available": {
+      "main": [
+        [
+          {
+            "node": "Send Email to Donor",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Donor Availability": {
+      "main": [
+        [
+          {
+            "node": "Notify Requester of Match",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Notify Requester of Match": {
+      "main": [
+        [
+          {
+            "node": "Get Active Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Cron - Daily Reset": {
+      "main": [
+        [
+          {
+            "node": "Read Donors for Reset",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Donors for Reset": {
+      "main": [
+        [
+          {
+            "node": "Filter Donors to Reset",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter Donors to Reset": {
+      "main": [
+        [
+          {
+            "node": "Reset Availability",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "51ad68ba-18a3-4c00-971f-a87a86cb6b0f",
+  "meta": {
+    "instanceId": "29736943eb78277773ef91cfaa11946d01c19d32c1791e353f595350cb670a8e"
+  },
+  "id": "vjS5aoOQEV1aL4aX",
+  "tags": []
+}
