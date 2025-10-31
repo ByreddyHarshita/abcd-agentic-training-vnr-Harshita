@@ -139,6 +139,9 @@ If a donor has been marked unavailable for more than 30 days, their status is ch
    ```
 6. Monitor donor activity directly on your linked Google Sheets.
 
+<img width="1192" height="391" alt="Workflow" src="https://github.com/user-attachments/assets/a6f83901-05ce-485c-9eca-61b82cb95b96" />
+
+
 ---
 
 ## Workflow Visualization
