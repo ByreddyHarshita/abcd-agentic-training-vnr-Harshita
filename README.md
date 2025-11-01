@@ -191,5 +191,5 @@ K[Cron - Daily Reset] --> L[Reset Donor Availability]
   **1.** https://github.com/ByreddyHarshita/abcd-agentic-training-vnr-Harshita/blob/main/Application/Donor%20Availability_1.mp4
 
   **2.** https://github.com/ByreddyHarshita/abcd-agentic-training-vnr-Harshita/blob/main/Application/Donor%20Availability_2.mp4
-
+- PPT Link: https://github.com/ByreddyHarshita/abcd-agentic-training-vnr-Harshita/blob/main/Application/Automated%20Blood%20Donor%20Availability.pptx
 ---
